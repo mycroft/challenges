@@ -2,44 +2,46 @@ use std::fs;
 use std::collections::HashMap;
 use regex::Regex;
 
-fn score(data: &HashMap<String, HashMap<String, i32>>, visited: &mut Vec<String>) -> i32 {
-	if visited.len() == data.len() {
-		let mut score : i32 = 0;
+fn score<'a>(
+	data: &HashMap<(&'a str, &'a str), i32>,
+	everyone: &Vec<&'a str>,
+	visited: &mut Vec<&'a str>) -> i32
+{
+	if visited.len() == everyone.len() {
+		let mut score : i32;
 
-		if !(visited[visited.len()-1] == "me" || visited[0] == "me") {
-			score = *data.get(&visited[visited.len()-1]).unwrap().get(&visited[0]).unwrap();
-			score += *data.get(&visited[0]).unwrap().get(&visited[visited.len()-1]).unwrap();
-		}
-
+		score = *data.get(&(visited[visited.len()-1], visited[0])).unwrap();
+		score += *data.get(&(visited[0], visited[visited.len()-1])).unwrap();
 
 		for i in 0..visited.len() - 1 {
-			if !(visited[i] == "me" || visited[i+1] == "me") {
-				score += *data.get(&visited[i]).unwrap().get(&visited[i+1]).unwrap();
-				score += *data.get(&visited[i+1]).unwrap().get(&visited[i]).unwrap();
-			}
+			score += *data.get(&(visited[i], visited[i+1])).unwrap();
+			score += *data.get(&(visited[i+1], visited[i])).unwrap();
 		}
 
 		return score;
 	}
 
-	let mut current_score : i32 = 0;
+	let mut current_score = None;
 
-	for(key, _person) in data {
+	for key in everyone.iter() {
 		if visited.iter().any(|x| x == key) {
 			continue;
 		}
 
-		visited.push(key.to_string());
+		visited.push(key);
 
-		let score = score(data, visited);
-		if score > current_score {
-			current_score = score;
-		}
+		let score = score(data, everyone, visited);
+		current_score = match current_score {
+			None => Some(score),
+			Some(value) => {
+				if score > value { Some(score) } else { Some(value) }
+			}
+		};
 
 		visited.pop();
 	}
 
-	current_score
+	current_score.unwrap()
 }
 
 fn main() {
@@ -49,7 +51,8 @@ fn main() {
 	let re = Regex::new(r"^(.*) would (lose|gain) (\d+) happiness units by sitting next to (.*)\.$").unwrap();
 
 	let lines = content.lines();
-	let mut users : HashMap<String, HashMap<String, i32>> = HashMap::new();
+	let mut users : HashMap<(&str, &str), i32> = HashMap::new();
+	let mut everyone : Vec<&str> = Vec::new();
 
 	for line in lines {
 		let cap = re.captures(line).unwrap();
@@ -59,17 +62,26 @@ fn main() {
 			value *= -1;
 		}
 
-		// println!("{:?} / {:?} / {:?}", &cap[1], value, &cap[4]);
+		if !everyone.iter().any(|x| *x == cap.get(1).unwrap().as_str()) {
+			everyone.push(cap.get(1).unwrap().as_str());
+		}
 
-		users.entry(String::from(&cap[1])).or_insert(HashMap::new());
-		users.get_mut(&String::from(&cap[1])).unwrap().insert(
-			String::from(&cap[4]), value
+		// println!("{:?} / {:?} / {:?}", &cap[1], value, &cap[4]);
+		users.insert(
+			(cap.get(1).unwrap().as_str(), cap.get(4).unwrap().as_str()),
+			value
 		);
 	}
 
-	println!("Part #1: {:?}", score(&users, &mut Vec::new()));
+	println!("Part #1: {:?}", score(&users, &everyone, &mut Vec::new()));
 
-	users.entry("me".to_string()).or_insert(HashMap::new());
+	for person in everyone.iter() {
+		users.insert((&"me", person), 0);
+		users.insert((person, &"me"), 0);
+	}
+	everyone.push(&"me");
 
-	println!("Part #2: {:?}", score(&users, &mut Vec::new()));
+	// println!("{:?}", users);
+
+	println!("Part #2: {:?}", score(&users, &everyone, &mut Vec::new()));
 }
