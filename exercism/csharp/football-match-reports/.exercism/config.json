@@ -1,0 +1,26 @@
+{
+  "blurb": "Learn about switches by developing a system to report on soccer matches.",
+  "contributors": [
+    "ErikSchierboom",
+    "valentin-p",
+    "yzAlvin",
+    "sanderploegsma"
+  ],
+  "authors": [
+    "mikedamay"
+  ],
+  "files": {
+    "solution": [
+      "FootballMatchReports.cs"
+    ],
+    "test": [
+      "FootballMatchReportsTests.cs"
+    ],
+    "exemplar": [
+      ".meta/Exemplar.cs"
+    ],
+    "editor": [
+      "OffFieldActivitiesAndCharacters.cs"
+    ]
+  }
+}
