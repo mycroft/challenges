@@ -41,6 +41,7 @@ public static class Appointment
             AlertLevel.Early => new TimeSpan(24, 0, 0),
             AlertLevel.Standard => new TimeSpan(1, 45, 0),
             AlertLevel.Late => new TimeSpan(0, 30, 0),
+            _ => throw new ArgumentException(),
         };
 
         return appointment - delay;
