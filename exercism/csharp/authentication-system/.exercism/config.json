@@ -1,0 +1,21 @@
+{
+  "blurb": "Learn about the const and readonly keywords by refactoring an authentication system.",
+  "contributors": [
+    "ErikSchierboom",
+    "yzAlvin"
+  ],
+  "authors": [
+    "mikedamay"
+  ],
+  "files": {
+    "solution": [
+      "AuthenticationSystem.cs"
+    ],
+    "test": [
+      "AuthenticationSystemTests.cs"
+    ],
+    "exemplar": [
+      ".meta/Exemplar.cs"
+    ]
+  }
+}

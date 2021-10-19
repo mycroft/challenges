@@ -1,0 +1,21 @@
+{
+  "blurb": "Learn about nested types by refactoring a car class.",
+  "contributors": [
+    "ErikSchierboom",
+    "yzAlvin"
+  ],
+  "authors": [
+    "mikedamay"
+  ],
+  "files": {
+    "solution": [
+      "RemoteControlCleanup.cs"
+    ],
+    "test": [
+      "RemoteControlCleanupTests.cs"
+    ],
+    "exemplar": [
+      ".meta/Exemplar.cs"
+    ]
+  }
+}
