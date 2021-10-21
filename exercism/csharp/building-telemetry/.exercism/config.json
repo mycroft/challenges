@@ -1,0 +1,21 @@
+{
+  "blurb": "Learn about parameter modifiers by adding telemetry to a car.",
+  "contributors": [
+    "ErikSchierboom",
+    "yzAlvin"
+  ],
+  "authors": [
+    "mikedamay"
+  ],
+  "files": {
+    "solution": [
+      "BuildingTelemetry.cs"
+    ],
+    "test": [
+      "BuildingTelemetryTests.cs"
+    ],
+    "exemplar": [
+      ".meta/Exemplar.cs"
+    ]
+  }
+}
