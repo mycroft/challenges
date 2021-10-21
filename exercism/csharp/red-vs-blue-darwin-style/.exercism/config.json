@@ -1,0 +1,22 @@
+{
+  "blurb": "Learn about namespaces by managing car development teams.",
+  "contributors": [
+    "ErikSchierboom",
+    "valentin-p",
+    "yzAlvin"
+  ],
+  "authors": [
+    "mikedamay"
+  ],
+  "files": {
+    "solution": [
+      "RedVsBlueDarwinStyle.cs"
+    ],
+    "test": [
+      "RedVsBlueDarwinStyleTests.cs"
+    ],
+    "exemplar": [
+      ".meta/Exemplar.cs"
+    ]
+  }
+}
