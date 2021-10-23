@@ -1,0 +1,21 @@
+{
+  "blurb": "Learn about regular expressions by parsing logs.",
+  "contributors": [
+    "ErikSchierboom",
+    "yzAlvin"
+  ],
+  "authors": [
+    "mikedamay"
+  ],
+  "files": {
+    "solution": [
+      "ParsingLogFiles.cs"
+    ],
+    "test": [
+      "ParsingLogFilesTests.cs"
+    ],
+    "exemplar": [
+      ".meta/Exemplar.cs"
+    ]
+  }
+}

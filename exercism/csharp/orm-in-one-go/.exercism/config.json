@@ -1,0 +1,21 @@
+{
+  "blurb": "Learn about the using block by implementing an ORM system.",
+  "contributors": [
+    "ErikSchierboom",
+    "yzAlvin"
+  ],
+  "authors": [
+    "mikedamay"
+  ],
+  "files": {
+    "solution": [
+      "OrmInOneGo.cs"
+    ],
+    "test": [
+      "OrmInOneGoTests.cs"
+    ],
+    "exemplar": [
+      ".meta/Exemplar.cs"
+    ]
+  }
+}
