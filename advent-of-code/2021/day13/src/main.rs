@@ -66,7 +66,6 @@ fn fold(matrix: &[(i32, i32)], at: char, by: i32) -> Vec<(i32, i32)> {
         }
     }
 
-    // remove duplicatas
     matrix_res
 }
 

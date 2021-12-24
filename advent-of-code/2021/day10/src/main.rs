@@ -44,26 +44,16 @@ fn get_score(s: &str) -> (bool, char, Vec<char>) {
     let mut stack = vec![];
     for c in s.chars() {
         match c {
-            '(' => {
-                stack.push(')');
-            },
-            '<' => {
-                stack.push('>');
-            },
-            '{' => {
-                stack.push('}');
-            },
-            '[' => {
-                stack.push(']');
-            }
+            '(' => stack.push(')'),
+            '<' => stack.push('>'),
+            '{' => stack.push('}'),
+            '[' => stack.push(']'),
             x => {
                 if stack.is_empty() {
-                    // println!("closing with '{}' state: {:?}", x, stack);
                     return (false, x, vec![]);
                 }
                 let p = stack.pop().unwrap();
                 if p != x {
-                    // println!("closing with '{}' state: {:?}", x, stack);
                     return (false, x, vec![]);
                 }
             }

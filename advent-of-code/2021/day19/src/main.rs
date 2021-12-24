@@ -26,6 +26,29 @@ fn main() {
 
     scanners.remove(0);
 
+    // Compute first vector for first set of positions
+    let mut orig_vec = vec![];
+
+    // orig doesn't change: We keept the same orientation
+    for i in 0..all_points_scanner_0.len() {
+        for j in 1+i..all_points_scanner_0.len() {
+            orig_vec.push(
+                (
+                    all_points_scanner_0[j].x - all_points_scanner_0[i].x,
+                    all_points_scanner_0[j].y - all_points_scanner_0[i].y,
+                    all_points_scanner_0[j].z - all_points_scanner_0[i].z,
+                    all_points_scanner_0[i],
+                    all_points_scanner_0[j],
+                )
+            );
+        }
+    }
+
+    let mut scanners : Vec<Vec<Vec<Position>>> = scanners
+        .iter()
+        .map(|v| get_all_orientations_vec(v))
+        .collect();
+
     loop {
         if scanners.is_empty() {
             break;
@@ -33,7 +56,7 @@ fn main() {
 
         for scanner_id in 0..scanners.len() {
             let res = is_overlapping(
-                &all_points_scanner_0,
+                &orig_vec,
                 &scanners[scanner_id],
                 12
             );
@@ -48,6 +71,20 @@ fn main() {
             // Add the unknown points and move on.
             for new_p in res.2 {
                 if !all_points_scanner_0.contains(&new_p) {
+
+                    // Add vectors for this newly added point.
+                    for i in 0..all_points_scanner_0.len() {
+                        orig_vec.push(
+                            (
+                                new_p.x - all_points_scanner_0[i].x,
+                                new_p.y - all_points_scanner_0[i].y,
+                                new_p.z - all_points_scanner_0[i].z,
+                                all_points_scanner_0[i],
+                                new_p,
+                            )
+                        );
+                    }
+
                     all_points_scanner_0.push(new_p);
                 }
             }
@@ -185,28 +222,11 @@ fn get_all_orientations_vec(l: &[Position]) -> Vec<Vec<Position>> {
 // - If we found something or not
 // - The scanner X position
 // - The beacons position, as viewed by scanner 0.
-fn is_overlapping(orig: &[Position], candidate: &[Position], required: usize) -> (bool, Option<Position>, Vec<Position>) {
+fn is_overlapping(orig_vec: &[(i16, i16, i16, Position, Position)], candidates: &Vec<Vec<Position>>, required: usize) -> (bool, Option<Position>, Vec<Position>) {
     // We will list all vectors into both original & candidate vectors.
     // We will check if at least 12 vectors are similar
 
-    let mut orig_vec = vec![];
-
-    // orig doesn't change: We keept the same orientation
-    for i in 0..orig.len() {
-        for j in 1+i..orig.len() {
-            orig_vec.push(
-                (
-                    orig[j].x - orig[i].x,
-                    orig[j].y - orig[i].y,
-                    orig[j].z - orig[i].z,
-                    orig[i],
-                    orig[j],
-                )
-            );
-        }
-    }
-
-    for oriented_candidate in get_all_orientations_vec(candidate) {
+    for oriented_candidate in candidates {
         let mut candidate_vec = vec![];
 
         for i in 0..oriented_candidate.len() {
@@ -231,7 +251,7 @@ fn is_overlapping(orig: &[Position], candidate: &[Position], required: usize) ->
 
         for candidate in &candidate_vec {
             // we check if we have candidate vector only in orig_vec.
-            for orig_pos in &orig_vec {
+            for orig_pos in orig_vec.iter() {
                 if candidate.0 != orig_pos.0 || candidate.1 != orig_pos.1 || candidate.2 != orig_pos.2 {
                     continue;
                 }
