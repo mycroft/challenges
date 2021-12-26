@@ -1,22 +1,25 @@
 use std::fs;
 use std::fs::File;
-use std::io::prelude::*;
+use std::io::Write;
 
 mod modules;
 use crate::modules::ascii85::*;
 use crate::modules::layer0::*;
+use crate::modules::layer1::*;
+use crate::modules::layer2::*;
 
-fn open_extract(fp: &str, filter: bool) -> String {
+fn file_contents(fp: &str) -> String {
+    fs::read_to_string(fp).expect("payload file")
+}
+
+fn parse(contents: &String, filter: bool) -> String {
     let mut is_payload = !filter;
 
-    let contents = fs::read_to_string(fp).expect("payload file");
-    let lines  = contents
+    let lines = contents
         .lines()
         .collect::<Vec<&str>>()
         .iter()
-        .map(|x| {
-            x.trim_end()
-        })
+        .map(|x| x.trim_end())
         .collect::<Vec<&str>>();
 
     let mut payload = vec![];
@@ -39,24 +42,42 @@ fn open_extract(fp: &str, filter: bool) -> String {
 }
 
 fn main() {
-    let payload = open_extract("payload", false);
+    let initial_contents = file_contents("payload");
+    let payload = parse(&initial_contents, false);
 
     let layer_0 = decode_ascii85(&payload);
-    if layer_0.is_err() {
-        println!("Could not decode layer 0");
-        return;
-    }
+    // No need to decode first layer.
+    let layer_0 = String::from_utf8(layer_0).unwrap();
 
-    let layer_0 = layer_0.unwrap();
+    let mut fd = File::create("layer0").unwrap();
+    write!(fd, "{}", layer_0).unwrap();
 
-    let mut output = File::create("layer0").unwrap();
-    write!(output, "{}", String::from_utf8(layer_0).unwrap()).unwrap();
+    // println!("{}", String::from_utf8(layer_0).unwrap());
 
-    let payload = open_extract("layer0", true);
-
-
+    // Decoding layer 1
+    let payload = parse(&layer_0, true);
     let layer_1 = decode_layer0(&payload);
 
-    let mut output = File::create("layer1").unwrap();
-    write!(output, "{}", String::from_utf8(layer_1).unwrap()).unwrap();
+    let mut fd = File::create("layer1").unwrap();
+    write!(fd, "{}", layer_1).unwrap();
+
+    // println!("{}", layer_1);
+
+    // Decoding layer 2
+    let payload = parse(&layer_1, true);
+    let layer_2 = decode_layer1(&payload);
+
+    let mut fd = File::create("layer2").unwrap();
+    write!(fd, "{}", layer_2).unwrap();
+
+    // println!("{}", layer_2);
+
+    // Decoding layer 3
+    let payload = parse(&layer_2, true);
+    let layer_3 = decode_layer2(&payload);
+
+    let mut fd = File::create("layer3").unwrap();
+    write!(fd, "{}", layer_3).unwrap();
+
+    // println!("{}", layer_3);
 }

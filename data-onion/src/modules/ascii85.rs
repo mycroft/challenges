@@ -1,16 +1,23 @@
 use std::collections::VecDeque;
 
-pub fn decode_ascii85(orig: &String) -> Result<Vec<u8>, ()> {
-    if !orig.starts_with("<~") || !orig.ends_with("~>") {
-        return Err(());
+pub fn decode_ascii85(orig: &String) -> Vec<u8> {
+    if !orig.starts_with("<~") {
+        panic!("Ascii85 string must start with <~.");
     }
 
-    let mut out = vec![];
+    // if !orig.ends_with("~>")  {
+    //     panic!("Ascii85 string must end with ~>.");
+    // }
 
-    let mut orig : VecDeque<char> = orig.trim_start_matches("<~").trim_end_matches("~>").chars().collect();
+    let mut out = vec![];
+    let mut orig: VecDeque<char> = orig
+        .trim_start_matches("<~")
+        .trim_end_matches("~>")
+        .chars()
+        .collect();
 
     let mut count: u32 = 0;
-    let mut val : u32 = 0;
+    let mut val: u32 = 0;
 
     loop {
         if orig.is_empty() {
@@ -19,7 +26,8 @@ pub fn decode_ascii85(orig: &String) -> Result<Vec<u8>, ()> {
         }
 
         // Consome one char & convert it to bits
-        let c_bits = orig.pop_front().unwrap() as u8 - 33;
+        let c = orig.pop_front().unwrap();
+        let c_bits = c as u8 - 33;
 
         val += c_bits as u32 * 85u32.pow(4 - count);
 
@@ -33,7 +41,7 @@ pub fn decode_ascii85(orig: &String) -> Result<Vec<u8>, ()> {
         for idx in 0..32 {
             if idx != 0 && idx % 8 == 0 {
                 out.push(c);
-                
+
                 c = 0;
             }
 
@@ -49,7 +57,7 @@ pub fn decode_ascii85(orig: &String) -> Result<Vec<u8>, ()> {
         val = 0;
     }
 
-    Ok(out)
+    out
 }
 
 #[test]
@@ -57,12 +65,10 @@ fn test_ascii85() {
     let orig = String::from("<~6Y.B[~>");
     let res = decode_ascii85(&orig);
 
-    assert!(res.is_ok());
-    assert_eq!(String::from("Ce q"), String::from_utf8(res.unwrap()).unwrap());
+    assert_eq!(String::from("Ce q"), String::from_utf8(res).unwrap());
 
     let orig = String::from("<~6Y.B[/cYkO~>");
     let res = decode_ascii85(&orig);
 
-    assert!(res.is_ok());
-    assert_eq!(String::from("Ce q.\0\0\0"), String::from_utf8(res.unwrap()).unwrap());
+    assert_eq!(String::from("Ce q.\0\0\0"), String::from_utf8(res).unwrap());
 }
