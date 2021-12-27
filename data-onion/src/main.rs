@@ -9,12 +9,13 @@ use crate::modules::layer1::*;
 use crate::modules::layer2::*;
 use crate::modules::layer3::*;
 use crate::modules::layer4::*;
+use crate::modules::layer5::*;
 
 fn file_contents(fp: &str) -> String {
     fs::read_to_string(fp).expect("payload file")
 }
 
-fn parse(contents: &String, filter: bool) -> String {
+fn parse(contents: &str, filter: bool) -> String {
     let mut is_payload = !filter;
 
     let lines = contents
@@ -99,6 +100,14 @@ fn main() {
     let mut fd = File::create("layer5").unwrap();
     write!(fd, "{}", layer_5).unwrap();
 
-    println!("{}", layer_5);
+    // println!("{}", layer_5);
 
+    // Decoding layer 5
+    let payload = parse(&layer_5, true);
+    let layer_6 = decode_layer5(&payload);
+
+    let mut fd = File::create("layer6").unwrap();
+    write!(fd, "{}", layer_6).unwrap();
+
+    println!("{}", layer_6);
 }

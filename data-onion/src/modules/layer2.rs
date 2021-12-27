@@ -42,7 +42,7 @@ Note to self:
 - Found out the first extracted string was: "==[ Layer 4/6: Network Traff^c}^Q============================="
 - Changed first part, and disabled 2nd part detection.
  */
-pub fn decode_layer2(orig: &String) -> String {
+pub fn decode_layer2(orig: &str) -> String {
     let buf1 = "==[ Layer 4/6: ?????????????????"
         .chars()
         .map(|c| c as u8)
@@ -58,10 +58,10 @@ pub fn decode_layer2(orig: &String) -> String {
 
     let mut key = vec![0u8; 32];
 
-    let decoded = decode_ascii85(&orig);
+    let decoded = decode_ascii85(orig);
 
     for idx in 0..32 {
-        if buf1[idx] == '?' as u8 {
+        if buf1[idx] == b'?' {
             continue;
         }
 
@@ -69,7 +69,7 @@ pub fn decode_layer2(orig: &String) -> String {
     }
 
     for idx in 0..32 {
-        if buf2[idx] == '?' as u8 {
+        if buf2[idx] == b'?' {
             continue;
         }
 
@@ -78,7 +78,7 @@ pub fn decode_layer2(orig: &String) -> String {
 
     // Added after first try to get final key:
     for idx in 0..32 {
-        if buf3[idx] == '?' as u8 {
+        if buf3[idx] == b'?' {
             continue;
         }
 

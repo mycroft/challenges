@@ -30,11 +30,11 @@ bits. Removing the 8 parity bits leaves behind 56 data
 bits, which is exactly 7 bytes.
 
 */
-pub fn decode_layer1(orig: &String) -> String {
+pub fn decode_layer1(orig: &str) -> String {
     let mut res = vec![];
     let mut bits = vec![];
 
-    let decoded = decode_ascii85(&orig);
+    let decoded = decode_ascii85(orig);
 
     for mut c in decoded {
         let control_is_odd = c & 1 == 1; // is odd

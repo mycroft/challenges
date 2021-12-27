@@ -22,8 +22,8 @@ For example:
 
 
 */
-pub fn decode_layer0(orig: &String) -> String {
-    let decoded = decode_ascii85(&orig);
+pub fn decode_layer0(orig: &str) -> String {
+    let decoded = decode_ascii85(orig);
 
     let mask = 0b01010101;
 
@@ -33,11 +33,11 @@ pub fn decode_layer0(orig: &String) -> String {
         let mut b = *b;
 
         // flip bits
-        b = b ^ mask;
+        b ^= mask;
 
         // rotate
         let lb = b & 1;
-        let b = b >> 1 + (lb << 7);
+        let b = (b >> 1) + (lb << 7);
 
         // push
         res.push(b);

@@ -42,15 +42,14 @@ to generate the payload for this layer, and reused the
 `aes_key_wrap` Ruby gem that I wrote years ago.
 */
 
-use openssl::aes::{AesKey, unwrap_key};
+use openssl::aes::{unwrap_key, AesKey};
 use openssl::symm::{decrypt, Cipher};
 
+pub fn decode_layer4(orig: &str) -> String {
+    let decoded = decode_ascii85(orig);
 
-pub fn decode_layer4(orig: &String) -> String {
-    let decoded = decode_ascii85(&orig);
-
-    let wrapped_key : Vec<u8> = decoded[40..80].into();
-    let orig_iv : Vec<u8> = decoded[80..96].into();
+    let wrapped_key: Vec<u8> = decoded[40..80].into();
+    let orig_iv: Vec<u8> = decoded[80..96].into();
 
     // First, unwrap key.
 
@@ -59,9 +58,15 @@ pub fn decode_layer4(orig: &String) -> String {
 
     unwrap_key(
         &dec_key,
-        Some(decoded[32..40].try_into().expect("slice with correct length")), 
+        Some(
+            decoded[32..40]
+                .try_into()
+                .expect("slice with correct length"),
+        ),
         &mut orig_key,
-        &wrapped_key[..]).unwrap();
+        &wrapped_key[..],
+    )
+    .unwrap();
 
     // CTR AES with orig_key/orig_iv
 
@@ -70,7 +75,8 @@ pub fn decode_layer4(orig: &String) -> String {
         &orig_key,
         Some(&orig_iv),
         &decoded[96..],
-    ).unwrap();
+    )
+    .unwrap();
 
     String::from_utf8(out).expect("valid utf8 text")
 }

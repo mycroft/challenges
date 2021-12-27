@@ -1,23 +1,30 @@
 use std::collections::VecDeque;
 
-pub fn decode_ascii85(orig: &String) -> Vec<u8> {
+pub fn decode_ascii85(orig: &str) -> Vec<u8> {
     if !orig.starts_with("<~") {
         panic!("Ascii85 string must start with <~.");
     }
 
-    // if !orig.ends_with("~>")  {
-    //     panic!("Ascii85 string must end with ~>.");
-    // }
-
     let mut out = vec![];
     let mut orig: VecDeque<char> = orig
+        .trim_start()
         .trim_start_matches("<~")
+        .trim_end()
         .trim_end_matches("~>")
         .chars()
+        .filter(|c| !c.is_ascii_whitespace())
         .collect();
 
     let mut count: u32 = 0;
     let mut val: u32 = 0;
+
+    let mut added = 0;
+
+    // Adding missing 'u' at the end.
+    while orig.len() % 5 != 0 {
+        orig.push_back('u');
+        added += 1;
+    }
 
     loop {
         if orig.is_empty() {
@@ -55,6 +62,11 @@ pub fn decode_ascii85(orig: &String) -> Vec<u8> {
 
         count = 0;
         val = 0;
+    }
+
+    // Removing last 'added'.
+    for _ in 0..added {
+        out.pop();
     }
 
     out

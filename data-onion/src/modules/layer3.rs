@@ -47,28 +47,6 @@ The packets appear in the correct order. No reordering is
 necessary.
 */
 
-struct Ipv4Header {
-    version: u8,       // on 4 bits
-    header_length: u8, // on 4 bits
-    service_type: u8,
-    total_length: u8,
-    ident: u8,
-    indicator: u8, // on 3 bits
-    offset: u8,    // on 13 bits
-    lifetime: u8,
-    protocol: u8,
-    chksum: u16,
-    src_address: u32,
-    dst_address: u32,
-}
-
-struct UdpHeader {
-    src_port: u16,
-    dest_port: u16,
-    length: u16,
-    chksum: u16,
-}
-
 // Parse ipv4 & check checksum. Return Ok with required fields for UPD checks
 fn parse_ipv4(buffer: &[u8]) -> (u32, u32, u8, u16, bool) {
     let mut sum: u32 = 0;
@@ -167,8 +145,8 @@ fn check_udp(buffer: &[u8]) -> bool {
     total == 0xffff
 }
 
-pub fn decode_layer3(orig: &String) -> String {
-    let decoded = decode_ascii85(&orig);
+pub fn decode_layer3(orig: &str) -> String {
+    let decoded = decode_ascii85(orig);
     let mut idx = 0;
     let mut res = vec![];
 
