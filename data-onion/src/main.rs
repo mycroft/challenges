@@ -8,6 +8,7 @@ use crate::modules::layer0::*;
 use crate::modules::layer1::*;
 use crate::modules::layer2::*;
 use crate::modules::layer3::*;
+use crate::modules::layer4::*;
 
 fn file_contents(fp: &str) -> String {
     fs::read_to_string(fp).expect("payload file")
@@ -89,5 +90,15 @@ fn main() {
     let mut fd = File::create("layer4").unwrap();
     write!(fd, "{}", layer_4).unwrap();
 
-    println!("{}", layer_4);
+    // println!("{}", layer_4);
+
+    // Decoding layer 4
+    let payload = parse(&layer_4, true);
+    let layer_5 = decode_layer4(&payload);
+
+    let mut fd = File::create("layer5").unwrap();
+    write!(fd, "{}", layer_5).unwrap();
+
+    println!("{}", layer_5);
+
 }
