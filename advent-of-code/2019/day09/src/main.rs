@@ -4,7 +4,7 @@ struct IntCode {
     input: Vec<i64>,
     ip: usize,
     base: i64,
-    output: i64,
+    output: Vec<i64>,
     debug: bool,
     is_halted: bool,
 }
@@ -19,13 +19,13 @@ impl IntCode {
             input: input.to_owned(),
             ip: 0,
             base: 0,
-            output: 0,
+            output: vec![],
             debug: false,
             is_halted: false,
         }
     }
 
-    fn next(&mut self) -> Option<i64> {
+    fn execute(&mut self) {
         loop {
             let mut opcode = self.program[self.ip];
             let mut parameters = 0;
@@ -94,17 +94,15 @@ impl IntCode {
                 },
                 3 => {
                     if self.input.is_empty() {
-                        return None;
+                        panic!("Could not read input");
                     }
                     self.program[a as usize] = self.input[0];
                     self.input.remove(0);
                     self.ip += 2;
                 },
                 4 => {
-                    self.output = a;
+                    self.output.push(a);
                     self.ip += 2;
-
-                    return Some(a);
                 },
                 5 => { // jump-if-true
                     if a != 0 {
@@ -143,7 +141,7 @@ impl IntCode {
                 },
                 99 => {
                     self.is_halted = true;
-                    return Some(self.output);
+                    return;
                 }
                 _ => {
                     println!("Invalid opcode: {} (ip: {})", opcode, self.ip);
@@ -162,63 +160,62 @@ fn str_to_prog(s: &str) -> Vec<i64> {
         .collect::<Vec<i64>>()
 }
 
-fn run(s: &str, input: &[i64]) -> i64 {
+fn run(s: &str, input: &[i64]) -> Vec<i64> {
     let program = str_to_prog(s);
 
     let mut vm = IntCode::new(&program, input);
-    let res = vm.next();
+    vm.execute();
 
-    res.unwrap()
+    vm.output
+}
+
+fn run_last(s: &str, input: &[i64]) -> i64 {
+    let output = run(s, input);
+
+    *output.last().unwrap()
 }
 
 fn main() {
     let contents = std::fs::read_to_string("input.txt").expect("invalid file");
     let contents = contents.trim();
 
-    println!("#1 {}", run(contents, &[1]));
-    println!("#2 {}", run(contents, &[2]));
+    println!("#1 {}", run_last(contents, &[1]));
+    println!("#2 {}", run_last(contents, &[2]));
 }
 
 #[test]
 fn test_prog_day05() {
-    assert_eq!(1, run("3,9,8,9,10,9,4,9,99,-1,8", &[8]));
-    assert_eq!(0, run("3,9,8,9,10,9,4,9,99,-1,8", &[9]));
+    assert_eq!(1, run_last("3,9,8,9,10,9,4,9,99,-1,8", &[8]));
+    assert_eq!(0, run_last("3,9,8,9,10,9,4,9,99,-1,8", &[9]));
 
-    assert_eq!(1, run(&"3,9,7,9,10,9,4,9,99,-1,8", &[7]));
-    assert_eq!(0, run(&"3,9,7,9,10,9,4,9,99,-1,8", &[8]));
+    assert_eq!(1, run_last(&"3,9,7,9,10,9,4,9,99,-1,8", &[7]));
+    assert_eq!(0, run_last(&"3,9,7,9,10,9,4,9,99,-1,8", &[8]));
 
-    assert_eq!(1, run(&"3,3,1108,-1,8,3,4,3,99", &[8]));
-    assert_eq!(0, run(&"3,3,1108,-1,8,3,4,3,99", &[9]));
+    assert_eq!(1, run_last(&"3,3,1108,-1,8,3,4,3,99", &[8]));
+    assert_eq!(0, run_last(&"3,3,1108,-1,8,3,4,3,99", &[9]));
 
-    assert_eq!(0, run(&"3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9", &[0]));
-    assert_eq!(1, run(&"3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9", &[1]));
+    assert_eq!(0, run_last(&"3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9", &[0]));
+    assert_eq!(1, run_last(&"3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9", &[1]));
 
-    assert_eq!(0, run(&"3,3,1105,-1,9,1101,0,0,12,4,12,99,1", &[0]));
-    assert_eq!(1, run(&"3,3,1105,-1,9,1101,0,0,12,4,12,99,1", &[1]));
+    assert_eq!(0, run_last(&"3,3,1105,-1,9,1101,0,0,12,4,12,99,1", &[0]));
+    assert_eq!(1, run_last(&"3,3,1105,-1,9,1101,0,0,12,4,12,99,1", &[1]));
 
     let s = "3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99";
-    assert_eq!(999, run(&s, &[-1]));
-    assert_eq!(1000, run(&s, &[8]));
-    assert_eq!(1001, run(&s, &[9]));
+    assert_eq!(999, run_last(&s, &[-1]));
+    assert_eq!(1000, run_last(&s, &[8]));
+    assert_eq!(1001, run_last(&s, &[9]));
 }
 
 #[test]
 fn test_prog_day09() {
-    let program = str_to_prog("109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99");
-    let mut vm = IntCode::new(&program, &vec![]);
+    let s0 = "109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99";
+    let output = run(&s0, &vec![]);
 
-    while !vm.is_halted {
-        let res = vm.next();
-        println!("{:?}", res);
-    }
+    assert_eq!(
+        s0.split(",").map(|x| x.parse::<i64>().unwrap()).collect::<Vec<i64>>(),
+        output
+    );
 
-    let program = str_to_prog("1102,34915192,34915192,7,4,7,99,0");
-    let mut vm = IntCode::new(&program, &vec![]);
-    let res = vm.next();
-    println!("{:?}", res);
-
-    let program = str_to_prog("104,1125899906842624,99");
-    let mut vm = IntCode::new(&program, &vec![]);
-    let res = vm.next();
-    println!("{:?}", res);
+    assert_eq!(1219070632396864, run_last("1102,34915192,34915192,7,4,7,99,0", &[]));
+    assert_eq!(1125899906842624, run_last("104,1125899906842624,99", &[]));
 }
