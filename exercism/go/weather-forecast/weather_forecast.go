@@ -1,15 +1,13 @@
-/*
-Package weather provides handy functions to show weather forecast.
-*/
+// Package weather provides an API to know forecast for a given location.
 package weather
 
-// CurrentCondition is the current weather condition as a string.
+// CurrentCondition describes current weather condition.
 var CurrentCondition string
 
-// CurrentLocation is the current weather location as a string.
+// CurrentLocation describes current location.
 var CurrentLocation string
 
-// Forecast ouputs the weather condition in given city.
+// Forecast returns the forecast given the city & condition.
 func Forecast(city, condition string) string {
 	CurrentLocation, CurrentCondition = city, condition
 	return CurrentLocation + " - current weather condition: " + CurrentCondition
