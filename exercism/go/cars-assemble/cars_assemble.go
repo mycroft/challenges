@@ -1,40 +1,22 @@
 package cars
 
-// SuccessRate is used to calculate the ratio of an item being created without
-// error for a given speed
-func SuccessRate(speed int) float64 {
-	if speed <= 0 {
-		return 0
-	} else if speed <= 4 {
-		return 100. / 100.
-	} else if speed <= 8 {
-		return 90. / 100.
-	} else if speed <= 10 {
-		return 77. / 100.
-	}
-	return 0
+// CalculateWorkingCarsPerHour calculates how many working cars are
+// produced by the assembly line every hour
+func CalculateWorkingCarsPerHour(productionRate int, successRate float64) float64 {
+	return float64(productionRate) * successRate / 100
 }
 
-// CalculateProductionRatePerHour for the assembly line, taking into account
-// its success rate
-func CalculateProductionRatePerHour(speed int) float64 {
-	return SuccessRate(speed) * 221 * float64(speed)
-}
-
-// CalculateProductionRatePerMinute describes how many working items are
+// CalculateWorkingCarsPerMinute calculates how many working cars are
 // produced by the assembly line every minute
-func CalculateProductionRatePerMinute(speed int) int {
-	return int(CalculateProductionRatePerHour(speed) / 60)
+func CalculateWorkingCarsPerMinute(productionRate int, successRate float64) int {
+	return int(CalculateWorkingCarsPerHour(productionRate, successRate) / 60)
 }
 
-// CalculateLimitedProductionRatePerHour describes how many working items are
-// produced per hour with an upper limit on how many can be produced per hour
-func CalculateLimitedProductionRatePerHour(speed int, limit float64) float64 {
-	nolimit := CalculateProductionRatePerHour(speed)
-
-	if limit > nolimit {
-		return nolimit
+// CalculateCost works out the cost of producing the given number of cars
+func CalculateCost(carsCount int) uint {
+	if carsCount < 10 {
+		return uint(carsCount) * 10000
 	} else {
-		return limit
+		return CalculateCost(carsCount-10) + 95000
 	}
 }
