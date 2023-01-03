@@ -1,3 +1,4 @@
+// intcode simulator
 use std::fs::read_to_string;
 
 #[derive(Debug)]
@@ -35,11 +36,11 @@ impl From<isize> for OpCode {
     }
 }
 
-fn str_to_opcodes(s: &str) -> Vec<isize> {
+pub fn str_to_opcodes(s: &str) -> Vec<isize> {
     s.split(',').filter(|x| !x.is_empty()).map(|x| x.parse::<isize>().unwrap()).collect()
 }
 
-fn parse(fp: &str) -> Vec<isize> {
+pub fn parse(fp: &str) -> Vec<isize> {
     let contents = read_to_string(fp).unwrap();    
     str_to_opcodes(contents.trim_end())
 }
@@ -81,8 +82,7 @@ fn pos_param_addr(prog: &[isize], relative_base: isize, idx: usize, mode: isize,
     val
 }
 
-
-struct Machine {
+pub struct Machine {
     opcodes: Vec<isize>,
     idx: usize,
     input: Vec<isize>,
@@ -94,7 +94,7 @@ struct Machine {
 }
 
 impl Machine {
-    fn new(code: &[isize]) -> Self {
+    pub fn new(code: &[isize]) -> Self {
         let mut machine = Self {
             opcodes: code.to_owned(),
             idx: 0,
@@ -112,15 +112,19 @@ impl Machine {
         machine
     }
 
-    fn add_input(&mut self, n: isize) {
+    pub fn add_input(&mut self, n: isize) {
         self.input.push(n);
     }
 
-    fn clean_output(&mut self) {
+    pub fn clean_output(&mut self) {
         self.output = Vec::new();
     }
 
-    fn run(&mut self) -> isize {    
+    pub fn get_output(&self) -> Vec<isize> {
+        self.output.clone()
+    }
+
+    pub fn run(&mut self) -> isize {    
         loop {
             let opcode: OpCode = (self.opcodes[self.idx] % 100).into();
             let modes = (self.opcodes[self.idx] - (self.opcodes[self.idx] % 100)) / 100;
@@ -215,7 +219,8 @@ impl Machine {
 
                     // return last output only; if there is no output, returns 0.
                     return if self.output.is_empty() {
-                        0
+                        // day02 requires to output the first opcode if it did not output anything else.
+                        self.opcodes[0]
                     } else {
                         self.output[self.output.len() - 1]
                     };
@@ -224,7 +229,11 @@ impl Machine {
         }
     }
 
-    fn create_and_run(code: &[isize], input: &[isize]) -> isize {
+    pub fn is_finished(&self) -> bool {
+        self.finished
+    }
+
+    pub fn create_and_run(code: &[isize], input: &[isize]) -> isize {
         let mut machine = Self::new(code);
 
         input.iter().map(|x| machine.add_input(*x)).count();
@@ -233,68 +242,154 @@ impl Machine {
     }
 }
 
-fn main() {
-    let code = parse("input.txt");
-    let mut machine = Machine::new(&code);
-    machine.add_input(1);
-    let ret = machine.run();
-    println!("#1 {}", ret); // 2682107844
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    let code = parse("input.txt");
-    let mut machine = Machine::new(&code);
-    machine.add_input(2);
-    let ret = machine.run();
-    println!("#2 {}", ret); // 34738
-}
+    #[test]
+    fn test_day02_sample_00() {
+        let code = parse("tests/day02/input.txt_test0");
+        let mut machine = Machine::new(&code);
+        assert_eq!(
+            3500,
+            machine.run()
+        );
+    }
 
-#[test]
-fn test_sample() {
-    let code = str_to_opcodes("109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99");
-    let mut machine = Machine::new(&code);
-    machine.run();
-    println!("{:?}", machine.output);
+    #[test]
+    fn test_day02_sample_01() {
+        let code = parse("tests/day02/input.txt_test1");
+        let mut machine = Machine::new(&code);
+        assert_eq!(
+            2,
+            machine.run()
+        );
+    }
 
-    assert_eq!(
-        machine.output,
-        code
-    );
+    #[test]
+    fn test_day02_sample_02() {
+        let code = parse("tests/day02/input.txt_test2");
+        let mut machine = Machine::new(&code);
+        assert_eq!(
+            2,
+            machine.run()
+        );
+    }
 
-    let code = str_to_opcodes("1102,34915192,34915192,7,4,7,99,0");
-    let mut machine = Machine::new(&code);
-    machine.run();
+    #[test]
+    fn test_day02_sample_03() {
+        let code = parse("tests/day02/input.txt_test3");
+        let mut machine = Machine::new(&code);
+        assert_eq!(
+            2,
+            machine.run()
+        );
+    }
 
-    println!("{:?}", machine.output);
+    #[test]
+    fn test_day02_sample_04() {
+        let code = parse("tests/day02/input.txt_test4");
+        let mut machine = Machine::new(&code);
+        assert_eq!(
+            30,
+            machine.run()
+        );
+    }
 
-    let code = str_to_opcodes("104,1125899906842624,99");
-    let mut machine = Machine::new(&code);
-    machine.run();
+    #[test]
+    fn test_day05_sample_00() {
+        let code = str_to_opcodes("3,0,4,0,99");
+        assert_eq!(
+            17,
+            Machine::create_and_run(&code, &[17].to_vec())
+        );
+    }
 
-    println!("{:?}", machine.output);
+    #[test]
+    fn test_day05_sample_01() {
+        let code = str_to_opcodes("1002,4,3,4,33");
+        assert_eq!(
+            1002,
+            Machine::create_and_run(&code, &[].to_vec())
+        );
+    }
 
-    assert_eq!(
-        machine.output,
-        [code[1]].to_vec()
-    );
-}
+    #[test]
+    fn test_day05_sample_02() {
+        let code = str_to_opcodes("1101,100,-1,4,0");
+        assert_eq!(
+            1101,
+            Machine::create_and_run(&code, &[].to_vec())
+        );
+    }
 
-#[test]
-fn test_input_step1() {
-    let code = parse("input.txt");
-    let mut machine = Machine::new(&code);
-    machine.add_input(1);
-    assert_eq!(
-        2682107844,
-        machine.run()
-    );
-}
+    #[test]
+    fn test_day05_sample_03() {
+        let code = str_to_opcodes("3,9,8,9,10,9,4,9,99,-1,8");
+        assert_eq!(
+            1,
+            Machine::create_and_run(&code, &[8].to_vec())
+        );
 
-#[test]
-fn test_input_step2() {
-    let code = parse("input.txt");
-    let mut machine = Machine::new(&code);
-    machine.add_input(2);
-    assert_eq!(
-        34738,
-        machine.run()
-    );
+        assert_eq!(
+            0,
+            Machine::create_and_run(&code, &[9].to_vec())
+        );
+    }
+
+    #[test]
+    fn test_day05_sample_04() {
+        let code = parse("tests/day05/input.txt_test0");
+        assert_eq!(
+            999,
+            Machine::create_and_run(&code, &[7].to_vec())
+        );
+
+        assert_eq!(
+            1000,
+            Machine::create_and_run(&code, &[8].to_vec())
+        );
+
+        assert_eq!(
+            1001,
+            Machine::create_and_run(&code, &[9].to_vec())
+        );
+    }
+
+    #[test]
+    fn test_day09_sample_01() {
+        let code = str_to_opcodes("109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99");
+        let mut machine = Machine::new(&code);
+        machine.run();
+
+        assert_eq!(
+            machine.output,
+            code
+        );
+    }
+
+    #[test]
+    fn test_day09_sample_02() {
+        let code = str_to_opcodes("1102,34915192,34915192,7,4,7,99,0");
+        let mut machine = Machine::new(&code);
+        machine.run();
+
+        assert_eq!(
+            [1219070632396864].to_vec(),
+            machine.output
+        );
+    }
+
+    #[test]
+    fn test_day09_sample_03() {
+        let code = str_to_opcodes("104,1125899906842624,99");
+        let mut machine = Machine::new(&code);
+        machine.run();
+
+        assert_eq!(
+            [code[1]].to_vec(),
+            machine.output
+        );
+    }
+
 }
