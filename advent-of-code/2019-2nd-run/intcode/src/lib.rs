@@ -1,7 +1,7 @@
 // intcode simulator
 use std::fs::read_to_string;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 enum OpCode {
     Addition,
     Multiplication,
@@ -82,6 +82,7 @@ fn pos_param_addr(prog: &[isize], relative_base: isize, idx: usize, mode: isize,
     val
 }
 
+#[derive(Debug, Clone)]
 pub struct Machine {
     opcodes: Vec<isize>,
     idx: usize,
