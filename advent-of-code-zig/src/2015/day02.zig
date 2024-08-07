@@ -1,4 +1,6 @@
 const std = @import("std");
+const aoc = @import("../aoc.zig");
+
 const futils = @import("../futils.zig");
 const testing = std.testing;
 
@@ -38,8 +40,10 @@ fn solve(contents: []const u8) !struct { step1: u32, step2: u32 } {
     return .{ .step1 = res1, .step2 = res2 };
 }
 
-pub fn main(allocator: std.mem.Allocator) anyerror!void {
+pub fn main(allocator: std.mem.Allocator, challenge: aoc.Challenge) anyerror!void {
     const stdout = std.io.getStdOut().writer();
+
+    _ = challenge;
 
     const file_content = try futils.file_to_string(allocator, "./input/2015/day02.txt");
     defer allocator.free(file_content);

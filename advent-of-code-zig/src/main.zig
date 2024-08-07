@@ -4,7 +4,7 @@ const year2015 = @import("./2015/main.zig").main;
 
 const Year = struct {
     name: []const u8,
-    main: fn (std.mem.Allocator) anyerror!void,
+    main: fn (std.mem.Allocator, []const u8) anyerror!void,
 };
 
 const YEARS = [_]Year{
@@ -20,7 +20,7 @@ pub fn main() !void {
 
     inline for (YEARS) |year| {
         // try stdout.print("you're running {s}'s challenges!\n", .{year.name});
-        try year.main(allocator);
+        try year.main(allocator, year.name);
     }
 }
 
