@@ -5,6 +5,7 @@ const day01 = @import("./day01.zig").main;
 const day02 = @import("./day02.zig").main;
 const day03 = @import("./day03.zig").main;
 const day04 = @import("./day04.zig").main;
+const day05 = @import("./day05.zig").main;
 
 const Day = struct {
     name: []const u8,
@@ -17,6 +18,7 @@ const DAYS = [_]Day{
     Day{ .name = "day02", .main = day02 },
     Day{ .name = "day03", .main = day03 },
     Day{ .name = "day04", .main = day04, .skipped = true },
+    Day{ .name = "day05", .main = day05 },
 };
 
 pub fn main(allocator: std.mem.Allocator, year: []const u8) !void {
