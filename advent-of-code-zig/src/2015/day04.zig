@@ -3,17 +3,19 @@ const aoc = @import("../aoc.zig");
 const futils = @import("../futils.zig");
 const testing = std.testing;
 
-fn solve(allocator: std.mem.Allocator, input: []const u8) !struct { step1: u32, step2: u32 } {
+var step_1_res: ?u32 = null;
+var step_2_res: ?u32 = null;
+
+fn solve_unit(allocator: std.mem.Allocator, input: []const u8, start: u32, step: u32) !void {
     var hash: [std.crypto.hash.Md5.digest_length]u8 = undefined;
-    var n: u32 = 0;
 
     const buf = try allocator.alloc(u8, input.len + 10);
     defer allocator.free(buf);
 
-    var step_1_res: ?u32 = null;
-    var step_2_res: ?u32 = null;
+    // var step_1_res: ?u32 = null;
+    // var step_2_res: ?u32 = null;
 
-    while (true) {
+    for (start..step + start) |n| {
         var h = std.crypto.hash.Md5.init(.{});
 
         // not having the full key in "key" is a bit faster than processing everything at once.
@@ -23,17 +25,34 @@ fn solve(allocator: std.mem.Allocator, input: []const u8) !struct { step1: u32, 
         h.final(&hash);
 
         if (hash[0] == 0 and hash[1] == 0 and hash[2] & 0xf0 == 0) {
-            if (step_1_res == null) {
-                step_1_res = n;
+            if (step_1_res == null or step_1_res.? > n) {
+                step_1_res = @intCast(n);
             }
 
-            if (hash[2] == 0) {
-                step_2_res = n;
+            if (hash[2] == 0 and (step_2_res == null or step_2_res.? > n)) {
+                step_2_res = @intCast(n);
                 break;
             }
         }
+    }
+}
 
-        n += 1;
+fn solve(allocator: std.mem.Allocator, input: []const u8) !struct { step1: u32, step2: u32 } {
+    const threads_num: usize = 128;
+    var start: u32 = 0;
+    const step: u32 = 100000;
+
+    var threads: [threads_num]std.Thread = undefined;
+
+    while (step_1_res == null or step_2_res == null) {
+        for (0..threads_num) |thread_n| {
+            threads[thread_n] = try std.Thread.spawn(.{}, solve_unit, .{ allocator, input, start, step });
+            start += step;
+        }
+
+        for (0..threads_num) |thread_n| {
+            threads[thread_n].join();
+        }
     }
 
     return .{ .step1 = step_1_res.?, .step2 = step_2_res.? };
