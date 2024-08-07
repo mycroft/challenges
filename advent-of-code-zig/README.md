@@ -28,4 +28,30 @@ const DAYS = [_]Day{
 };
 ```
 
+Then, just use the following template:
+
+```zig
+const std = @import("std");
+const aoc = @import("../aoc.zig");
+const futils = @import("../futils.zig");
+const testing = std.testing;
+
+fn solve(allocator: std.mem.Allocator, input: []const u8) !struct { step1: u32, step2: u32 } {
+    _ = allocator;
+    _ = input;
+
+    return .{ .step1 = 0, .step2 = 0 };
+}
+
+pub fn main(allocator: std.mem.Allocator, challenge: aoc.Challenge) anyerror!void {
+    const file_content = try futils.get_challenge_input(allocator, challenge);
+    defer allocator.free(file_content);
+
+    const result = try solve(allocator, file_content);
+
+    aoc.printf("step1: {d}\n", .{result.step1});
+    aoc.printf("step2: {d}\n", .{result.step2});
+}
+```
+
 Adding a new year is similar, and this happens in `src/main.zig`.
