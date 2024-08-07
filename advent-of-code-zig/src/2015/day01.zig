@@ -1,4 +1,5 @@
 const std = @import("std");
+const futils = @import("../futils.zig");
 const testing = std.testing;
 
 fn solve(input: []const u8) struct { step1: i32, step2: i32 } {
@@ -27,15 +28,8 @@ fn solve(input: []const u8) struct { step1: i32, step2: i32 } {
 pub fn main(allocator: std.mem.Allocator) anyerror!void {
     const stdout = std.io.getStdOut().writer();
 
-    // try stdout.print("day01!\n", .{});
-
-    const file = try std.fs.cwd().openFile("./input/2015/day01.txt", .{});
-    defer file.close();
-
-    const file_content = try file.readToEndAlloc(allocator, 1024 * 1024);
+    const file_content = try futils.file_to_string(allocator, "./input/2015/day01.txt");
     defer allocator.free(file_content);
-
-    // try stdout.print("{s}", .{file_content});
 
     const result = solve(file_content);
 
