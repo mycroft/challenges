@@ -3,12 +3,18 @@ const std = @import("std");
 pub const Challenge = struct {
     year: []const u8,
     day: []const u8,
+    skipped: bool,
 
     pub fn new(year: []const u8, day: []const u8) Challenge {
         return Challenge{
             .year = year,
             .day = day,
+            .skipped = false,
         };
+    }
+
+    pub fn set_skipped(self: *Challenge, skipped: bool) void {
+        self.skipped = skipped;
     }
 };
 
