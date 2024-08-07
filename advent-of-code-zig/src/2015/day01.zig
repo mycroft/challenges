@@ -1,0 +1,64 @@
+const std = @import("std");
+const testing = std.testing;
+
+fn solve(input: []const u8) struct { step1: i32, step2: i32 } {
+    var res1: i32 = 0;
+    var res2: ?i32 = null;
+
+    for (input, 1..) |c, i| {
+        switch (c) {
+            '(' => {
+                res1 += 1;
+            },
+            ')' => {
+                res1 -= 1;
+            },
+            else => {},
+        }
+
+        if (res2 == null and res1 == -1) {
+            res2 = @intCast(i);
+        }
+    }
+
+    return .{ .step1 = res1, .step2 = res2 orelse 0 };
+}
+
+pub fn main(allocator: std.mem.Allocator) anyerror!void {
+    const stdout = std.io.getStdOut().writer();
+
+    // try stdout.print("day01!\n", .{});
+
+    const file = try std.fs.cwd().openFile("./input/2015/day01.txt", .{});
+    defer file.close();
+
+    const file_content = try file.readToEndAlloc(allocator, 1024 * 1024);
+    defer allocator.free(file_content);
+
+    // try stdout.print("{s}", .{file_content});
+
+    const result = solve(file_content);
+
+    try stdout.print("step1: {d}\n", .{result.step1});
+    try stdout.print("step2: {d}\n", .{result.step2});
+}
+
+test "step1" {
+    try testing.expect(solve("(())").step1 == 0);
+    try testing.expect(solve("()()").step1 == 0);
+
+    try testing.expect(solve("(()(()(").step1 == 3);
+    try testing.expect(solve("(((").step1 == 3);
+    try testing.expect(solve("))(((((").step1 == 3);
+
+    try testing.expect(solve("())").step1 == -1);
+    try testing.expect(solve("))(").step1 == -1);
+
+    try testing.expect(solve(")))").step1 == -3);
+    try testing.expect(solve(")())())").step1 == -3);
+}
+
+test "step2" {
+    try testing.expect(solve(")").step2 == 1);
+    try testing.expect(solve("()())").step2 == 5);
+}
