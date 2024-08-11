@@ -10,6 +10,7 @@ const day06 = @import("./day06.zig").main;
 const day07 = @import("./day07.zig").main;
 const day08 = @import("./day08.zig").main;
 const day09 = @import("./day09.zig").main;
+const day10 = @import("./day10.zig").main;
 
 const Day = struct {
     name: []const u8,
@@ -27,6 +28,7 @@ const DAYS = [_]Day{
     Day{ .name = "day07", .main = day07 },
     Day{ .name = "day08", .main = day08 },
     Day{ .name = "day09", .main = day09 },
+    Day{ .name = "day10", .main = day10, .skipped = false },
 };
 
 pub fn main(allocator: std.mem.Allocator, year: []const u8) !void {
@@ -42,6 +44,10 @@ pub fn main(allocator: std.mem.Allocator, year: []const u8) !void {
             continue;
         }
 
+        const now = std.time.milliTimestamp();
         try day.main(allocator, challenge);
+        const now_end = std.time.milliTimestamp();
+
+        try stdout.print("-- day {d} ended after {d} ms --\n\n", .{ num, now_end - now });
     }
 }
