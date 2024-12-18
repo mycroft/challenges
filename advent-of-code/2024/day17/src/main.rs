@@ -1,4 +1,6 @@
 mod read;
+use std::vec;
+
 use read::read_input;
 use itertools::Itertools;
 
@@ -211,11 +213,11 @@ fn main() {
 
 #[test]
 fn samples() {
-    let mut vm = VM { registers: [0, 0, 9], ip: 0, program: vec![Instruction::Bst, Instruction::Operand(6)], output: vec![] };
+    let mut vm = VM { registers: [0, 0, 9], ip: 0, program: vec![Instruction::Bst, Instruction::Operand(6)], output: vec![], code: vec![] };
     vm.exec();
     assert_eq!(vm.registers, [0, 1, 9]);
 
-    let mut vm = VM { registers: [10, 0, 0], ip: 0, program: vec![Instruction::Out, Instruction::Operand(0), Instruction::Out, Instruction::Operand(1), Instruction::Out, Instruction::Operand(4)], output: vec![] };
+    let mut vm = VM { registers: [10, 0, 0], ip: 0, program: vec![Instruction::Out, Instruction::Operand(0), Instruction::Out, Instruction::Operand(1), Instruction::Out, Instruction::Operand(4)], output: vec![], code: vec![] };
     vm.exec();
     assert_eq!(vm.output, [0, 1, 2]);
 
@@ -226,16 +228,16 @@ fn samples() {
         Instruction::Operand(4),
         Instruction::Jnz,
         Instruction::Operand(0),
-    ], output: vec![] };
+    ], output: vec![], code: vec![] };
     vm.exec();
     assert_eq!(vm.output, [4, 2, 5, 6, 7, 7, 7, 7, 3, 1, 0]);
     assert_eq!(vm.registers[0], 0);
 
-    let mut vm = VM { registers: [0, 29, 0], ip: 0, program: vec![Instruction::Bxl, Instruction::Operand(7)], output: vec![] };
+    let mut vm = VM { registers: [0, 29, 0], ip: 0, program: vec![Instruction::Bxl, Instruction::Operand(7)], output: vec![], code: vec![] };
     vm.exec();
     assert_eq!(vm.registers[1], 26);
 
-    let mut vm = VM { registers: [0, 2024, 43690], ip: 0, program: vec![Instruction::Bxc, Instruction::Operand(0)], output: vec![] };
+    let mut vm = VM { registers: [0, 2024, 43690], ip: 0, program: vec![Instruction::Bxc, Instruction::Operand(0)], output: vec![], code: vec![] };
     vm.exec();
     assert_eq!(vm.registers[1], 44354);
 }

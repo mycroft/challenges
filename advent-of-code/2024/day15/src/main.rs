@@ -51,6 +51,7 @@ impl Direction {
 }
 
 impl Map {
+    #[allow(dead_code)]
     fn print(&self) {
         let mut max_x = 0;
         let mut max_y = 0;

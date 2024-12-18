@@ -15,6 +15,7 @@ struct Disk {
 }
 
 impl Disk {
+    #[allow(dead_code)]
     fn dump(&self) -> String {
         let mut result = String::new();
         for c in &self.content {

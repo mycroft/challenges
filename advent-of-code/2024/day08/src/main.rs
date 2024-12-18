@@ -156,6 +156,7 @@ fn find_antinodes_step2(map: &Map) -> HashSet<Pos> {
     antinodes
 }
 
+#[allow(dead_code)]
 fn print_map(map: &Map, antinodes: &HashSet<Pos>) {
     for y in 0..map.height {
         for x in 0..map.width {

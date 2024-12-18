@@ -97,7 +97,7 @@ fn move_pos(current: Pos, current_direction: Direction, blockers: &HashSet<Pos>,
         return (Some(current), Some(current_direction.next()));
     }
 
-    return (None, None);
+    (None, None)
 }
 
 fn run(position: Pos, direction: Direction, blockers: &HashSet<Pos>, max_position: Pos) -> Option<HashSet<Pos>> {
@@ -113,7 +113,7 @@ fn run(position: Pos, direction: Direction, blockers: &HashSet<Pos>, max_positio
 
         match next_pos {
             Some(pos) => {
-                let cursor = Cursor { pos: pos, direction: next_direction.unwrap() };
+                let cursor = Cursor { pos, direction: next_direction.unwrap() };
 
                 if cursors.contains(&cursor) {
                     // println!("Loop detected at {:?}", cursor);
@@ -141,9 +141,6 @@ fn solve_part1(position: Pos, direction: Direction, blockers: &HashSet<Pos>, max
 
 
 fn solve_part2(position: Pos, direction: Direction, blockers: &HashSet<Pos>, max_position: Pos) -> usize {
-    let mut current_pos = position;
-    let mut current_direction = direction;
-
     let mut result = 0;
 
     // first, get all visited, like solve_part1
